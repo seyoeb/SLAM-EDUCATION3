@@ -447,6 +447,9 @@ html, body {
   background: var(--mc-red-dim);
   animation: shake .4s ease;
 }
+.drop-zone * {
+  pointer-events: none;
+}
 
 @keyframes shake {
   0%,100% { transform: none; }
