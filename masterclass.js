@@ -607,125 +607,108 @@ function setupDragDrop(stage) {
   const cfg = ASSEMBLY_CONFIGS[stage.id];
   if (!cfg) return;
 
-  // ── [1] 드래그할 부품들 (draggable-part) 이벤트 바인딩 ──
+  // ── [1] 드래그할 부품들 ──
   document.querySelectorAll('.draggable-part').forEach(el => {
     el.setAttribute('draggable', 'true');
-    
-    // (A) 데스크톱 마우스 드래그 시작
+
+    // (A) 드래그 시작
     el.addEventListener('dragstart', e => {
       draggingPartId = el.dataset.partId;
-      console.log('dragstart, draggingPartId:', draggingPartId); // ← 추가
       e.dataTransfer.setData('text/plain', draggingPartId);
+      e.dataTransfer.setData('text', draggingPartId); // ★ IE/Safari 호환
       e.dataTransfer.effectAllowed = 'move';
-      setTimeout(() => el.classList.add('dragging'), 0);
+      el.classList.add('dragging'); // ★ setTimeout 제거 — 즉시 적용
     });
 
-    // (B) 데스크톱 마우스 드래그 종료
+    // (B) 드래그 종료 ★ draggingPartId를 여기서 바로 null로 하지 않음
     el.addEventListener('dragend', () => {
       el.classList.remove('dragging');
+      setTimeout(() => { draggingPartId = null; }, 0); // ★ drop 이벤트 처리 후 초기화
     });
 
-    // (C) ★ 스마트패드/태블릿 터치 드래그 시작 추가
+    // (C) 터치 시작
     el.addEventListener('touchstart', e => {
       if (el.classList.contains('placed')) return;
       draggingPartId = el.dataset.partId;
       el.classList.add('dragging');
-      
-      // 터치용 고스트 이미지(복사본) 생성 및 스타일 설정
       const touch = e.touches[0];
+      if (touchGhost) touchGhost.remove(); // ★ 이전 고스트 정리
       touchGhost = el.cloneNode(true);
-      touchGhost.style.position = 'fixed';
-      touchGhost.style.left = touch.clientX - 50 + 'px';
-      touchGhost.style.top = touch.clientY - 25 + 'px';
-      touchGhost.style.opacity = '0.8';
-      touchGhost.style.zIndex = '9999';
-      touchGhost.style.pointerEvents = 'none'; // 터치 이벤트 관통 효과
+      Object.assign(touchGhost.style, {
+        position: 'fixed',
+        left: touch.clientX - 50 + 'px',
+        top:  touch.clientY - 25 + 'px',
+        opacity: '0.8',
+        zIndex: '9999',
+        pointerEvents: 'none',
+        width: el.offsetWidth + 'px', // ★ 크기 맞춤
+      });
       document.body.appendChild(touchGhost);
     }, { passive: true });
 
-    // (D) ★ 스마트패드/태블릿 터치 드래그 중 (이동) 추가
+    // (D) 터치 이동
     el.addEventListener('touchmove', e => {
       if (!touchGhost) return;
-      
-      // 태블릿 화면이 위아래로 출렁이며 스크롤되는 현상 방지
-      if (e.cancelable) e.preventDefault(); 
-      
+      if (e.cancelable) e.preventDefault();
       const touch = e.touches[0];
       touchGhost.style.left = touch.clientX - 50 + 'px';
-      touchGhost.style.top = touch.clientY - 25 + 'px';
-      
-      // 현재 손가락 위치에 있는 드롭존 탐색
-      const target = document.elementFromPoint(touch.clientX, touch.clientY);
-      const zone = target ? target.closest('.drop-zone') : null;
-      
-      // 다른 모든 드롭존의 호버 스타일 제거 후 해당 존에만 추가
+      touchGhost.style.top  = touch.clientY - 25 + 'px';
       document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      const zone = target?.closest('.drop-zone');
       if (zone && !zone.classList.contains('filled')) {
         zone.classList.add('drag-over');
       }
     }, { passive: false });
 
-    // (E) ★ 스마트패드/태블릿 터치 완료 (드롭) 추가
+    // (E) 터치 종료 ★ 여기서 실제 드롭 처리
     el.addEventListener('touchend', e => {
       el.classList.remove('dragging');
-      if (touchGhost) {
-        touchGhost.remove();
-        touchGhost = null;
-      }
-      
-      const change = e.changedTouches[0];
-      const target = document.elementFromPoint(change.clientX, change.clientY);
-      const zone = target ? target.closest('.drop-zone') : null;
-      
-      if (zone) {
-        zone.classList.remove('drag-over');
-        if (!zone.classList.contains('filled')) {
-          handleDrop(draggingPartId, zone, cfg, stage.id);
-        }
+      if (touchGhost) { touchGhost.remove(); touchGhost = null; }
+      const t = e.changedTouches[0];
+      const target = document.elementFromPoint(t.clientX, t.clientY);
+      const zone = target?.closest('.drop-zone');
+      document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+      if (zone && !zone.classList.contains('filled') && draggingPartId) {
+        handleDrop(draggingPartId, zone, cfg, stage.id);
       }
       draggingPartId = null;
     });
   });
 
-  // ── [2] 내려놓을 구역들 (drop-zone) 이벤트 바인딩 (데스크톱용) ──
+  // ── [2] 드롭 존 ──
   document.querySelectorAll('.drop-zone').forEach(zone => {
     zone.addEventListener('dragenter', e => {
       e.preventDefault();
-      e.stopPropagation();
+      if (!zone.classList.contains('filled')) zone.classList.add('drag-over');
     });
 
     zone.addEventListener('dragover', e => {
       e.preventDefault();
-      e.stopPropagation();
-      if (!zone.classList.contains('filled')) {
-        zone.classList.add('drag-over');
-      }
       e.dataTransfer.dropEffect = 'move';
+      if (!zone.classList.contains('filled')) zone.classList.add('drag-over');
     });
 
+    // ★ 핵심 수정: 자식 요소로 이동 시 flicker 방지
     zone.addEventListener('dragleave', e => {
-      // 자식 요소 간의 플리커링 버그를 원천 차단하기 위해 무조건 래퍼 바깥으로 나갔을 때만 제거
-      if (!zone.contains(e.relatedTarget)) {
-        zone.classList.remove('drag-over');
-      }
+      if (zone.contains(e.relatedTarget)) return;
+      zone.classList.remove('drag-over');
     });
 
     zone.addEventListener('drop', e => {
       e.preventDefault();
       e.stopPropagation();
       zone.classList.remove('drag-over');
-      
-      const partId = draggingPartId 
+
+      // ★ 핵심 수정: draggingPartId 우선, 없으면 dataTransfer에서 읽기
+      const partId = draggingPartId
         || e.dataTransfer.getData('text/plain')
         || e.dataTransfer.getData('text');
-       console.log('draggingPartId:', draggingPartId);           // ← 추가
-       console.log('dataTransfer:', e.dataTransfer.getData('text/plain')); // ← 추가
-       console.log('drop fired, partId:', partId);
-        
-      console.log('drop fired, partId:', partId);
-      draggingPartId = null;
-      if (!partId) return;
-      handleDrop(partId, zone, cfg, stage.id)
+
+      if (!partId || zone.classList.contains('filled')) return;
+
+      draggingPartId = null; // drop 성공 시 즉시 초기화
+      handleDrop(partId, zone, cfg, stage.id);
     });
   });
 }
