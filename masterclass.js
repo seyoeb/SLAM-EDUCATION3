@@ -607,74 +607,139 @@ function setupDragDrop(stage) {
   const cfg = ASSEMBLY_CONFIGS[stage.id];
   if (!cfg) return;
 
-  // ── [1] 드래그할 부품들 ──
+  let activePart = null;      // 현재 드래그 중인 부품 DOM 요소
+  let ghost = null;           // 마우스를 따라다니는 복사본
+  let offsetX = 0, offsetY = 0;
+
+  // ── 고스트 생성 ──
+  function createGhost(el, x, y) {
+    if (ghost) ghost.remove();
+    ghost = el.cloneNode(true);
+    const rect = el.getBoundingClientRect();
+    offsetX = x - rect.left;
+    offsetY = y - rect.top;
+    Object.assign(ghost.style, {
+      position:      'fixed',
+      left:          (x - offsetX) + 'px',
+      top:           (y - offsetY) + 'px',
+      width:         rect.width + 'px',
+      height:        rect.height + 'px',
+      opacity:       '0.75',
+      pointerEvents: 'none',
+      zIndex:        '99999',
+      transform:     'scale(1.05)',
+      transition:    'none',
+    });
+    document.body.appendChild(ghost);
+  }
+
+  // ── 고스트 이동 ──
+  function moveGhost(x, y) {
+    if (!ghost) return;
+    ghost.style.left = (x - offsetX) + 'px';
+    ghost.style.top  = (y - offsetY) + 'px';
+  }
+
+  // ── 고스트 제거 ──
+  function removeGhost() {
+    if (ghost) { ghost.remove(); ghost = null; }
+  }
+
+  // ── 현재 좌표 아래 drop-zone 탐색 ──
+  function getZoneAt(x, y) {
+    if (ghost) ghost.style.display = 'none';
+    const el = document.elementFromPoint(x, y);
+    if (ghost) ghost.style.display = '';
+    return el ? el.closest('.drop-zone') : null;
+  }
+
+  // ── 모든 drag-over 스타일 제거 ──
+  function clearDragOver() {
+    document.querySelectorAll('.drop-zone.drag-over')
+      .forEach(z => z.classList.remove('drag-over'));
+  }
+
+  // ── 부품별 mousedown 등록 ──
   document.querySelectorAll('.draggable-part').forEach(el => {
-    el.setAttribute('draggable', 'true');
 
-    // (A) 드래그 시작
-    el.addEventListener('dragstart', e => {
-      draggingPartId = el.dataset.partId;
-      e.dataTransfer.setData('text/plain', draggingPartId);
-      e.dataTransfer.setData('text', draggingPartId); // ★ IE/Safari 호환
-      e.dataTransfer.effectAllowed = 'move';
-      el.classList.add('dragging'); // ★ setTimeout 제거 — 즉시 적용
-    });
-
-    // (B) 드래그 종료 ★ draggingPartId를 여기서 바로 null로 하지 않음
-    el.addEventListener('dragend', () => {
-      el.classList.remove('dragging');
-      setTimeout(() => { draggingPartId = null; }, 0); // ★ drop 이벤트 처리 후 초기화
-    });
-
-    // (C) 터치 시작
-    el.addEventListener('touchstart', e => {
+    el.addEventListener('mousedown', e => {
       if (el.classList.contains('placed')) return;
+      e.preventDefault();
+
+      activePart = el;
       draggingPartId = el.dataset.partId;
       el.classList.add('dragging');
-      const touch = e.touches[0];
-      if (touchGhost) touchGhost.remove(); // ★ 이전 고스트 정리
-      touchGhost = el.cloneNode(true);
-      Object.assign(touchGhost.style, {
-        position: 'fixed',
-        left: touch.clientX - 50 + 'px',
-        top:  touch.clientY - 25 + 'px',
-        opacity: '0.8',
-        zIndex: '9999',
-        pointerEvents: 'none',
-        width: el.offsetWidth + 'px', // ★ 크기 맞춤
-      });
-      document.body.appendChild(touchGhost);
+      createGhost(el, e.clientX, e.clientY);
+    });
+  });
+
+  // ── document 레벨에서 mousemove / mouseup 처리 ──
+  document.addEventListener('mousemove', e => {
+    if (!activePart) return;
+    moveGhost(e.clientX, e.clientY);
+
+    clearDragOver();
+    const zone = getZoneAt(e.clientX, e.clientY);
+    if (zone && !zone.classList.contains('filled')) {
+      zone.classList.add('drag-over');
+    }
+  });
+
+  document.addEventListener('mouseup', e => {
+    if (!activePart) return;
+
+    clearDragOver();
+    const zone = getZoneAt(e.clientX, e.clientY);
+
+    if (zone && !zone.classList.contains('filled') && draggingPartId) {
+      handleDrop(draggingPartId, zone, cfg, stage.id);
+    }
+
+    activePart.classList.remove('dragging');
+    activePart   = null;
+    draggingPartId = null;
+    removeGhost();
+  });
+
+  // ── 터치 이벤트 (모바일/태블릿) ──
+  document.querySelectorAll('.draggable-part').forEach(el => {
+
+    el.addEventListener('touchstart', e => {
+      if (el.classList.contains('placed')) return;
+      activePart     = el;
+      draggingPartId = el.dataset.partId;
+      el.classList.add('dragging');
+      const t = e.touches[0];
+      createGhost(el, t.clientX, t.clientY);
     }, { passive: true });
 
-    // (D) 터치 이동
     el.addEventListener('touchmove', e => {
-      if (!touchGhost) return;
+      if (!activePart) return;
       if (e.cancelable) e.preventDefault();
-      const touch = e.touches[0];
-      touchGhost.style.left = touch.clientX - 50 + 'px';
-      touchGhost.style.top  = touch.clientY - 25 + 'px';
-      document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
-      const target = document.elementFromPoint(touch.clientX, touch.clientY);
-      const zone = target?.closest('.drop-zone');
+      const t = e.touches[0];
+      moveGhost(t.clientX, t.clientY);
+      clearDragOver();
+      const zone = getZoneAt(t.clientX, t.clientY);
       if (zone && !zone.classList.contains('filled')) {
         zone.classList.add('drag-over');
       }
     }, { passive: false });
 
-    // (E) 터치 종료 ★ 여기서 실제 드롭 처리
     el.addEventListener('touchend', e => {
-      el.classList.remove('dragging');
-      if (touchGhost) { touchGhost.remove(); touchGhost = null; }
+      if (!activePart) return;
       const t = e.changedTouches[0];
-      const target = document.elementFromPoint(t.clientX, t.clientY);
-      const zone = target?.closest('.drop-zone');
-      document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+      clearDragOver();
+      const zone = getZoneAt(t.clientX, t.clientY);
       if (zone && !zone.classList.contains('filled') && draggingPartId) {
         handleDrop(draggingPartId, zone, cfg, stage.id);
       }
+      activePart.classList.remove('dragging');
+      activePart     = null;
       draggingPartId = null;
+      removeGhost();
     });
   });
+}
 
   // ── [2] 드롭 존 ──
   document.querySelectorAll('.drop-zone').forEach(zone => {
