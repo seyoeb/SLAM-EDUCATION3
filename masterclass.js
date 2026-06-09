@@ -614,6 +614,7 @@ function setupDragDrop(stage) {
     // (A) 데스크톱 마우스 드래그 시작
     el.addEventListener('dragstart', e => {
       draggingPartId = el.dataset.partId;
+      console.log('dragstart, draggingPartId:', draggingPartId); // ← 추가
       e.dataTransfer.setData('text/plain', draggingPartId);
       e.dataTransfer.effectAllowed = 'move';
       setTimeout(() => el.classList.add('dragging'), 0);
