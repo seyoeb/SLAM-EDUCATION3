@@ -776,7 +776,6 @@ function setupDragDrop(stage) {
       handleDrop(partId, zone, cfg, stage.id);
     });
   });
-}
 /* ── 드롭 처리 ── */
 function handleDrop(partId, zone, cfg, stageId) {
   const accepts = zone.dataset.accepts;
