@@ -719,10 +719,9 @@ function setupDragDrop(stage) {
         || e.dataTransfer.getData('text');
         
       console.log('drop fired, partId:', partId);
-      if (!partId) return;
-      
-      handleDrop(partId, zone, cfg, stage.id);
       draggingPartId = null;
+      if (!partId) return;
+      handleDrop(partId, zone, cfg, stage.id)
     });
   });
 }
