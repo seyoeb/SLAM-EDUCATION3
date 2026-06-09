@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LiDAR SLAM 자율주행 시뮬레이터 | 중학교 기술 교과</title>
+  <meta name="description" content="라이다 센서가 공간을 인식하고 지도를 만드는 원리를 체험하는 교육용 시뮬레이터입니다." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- 헤더 -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo-icon">🚗</div>
+      <div class="header-title">
+        <h1>LiDAR SLAM 시뮬레이터</h1>
+        <span class="header-subtitle">중학교 기술 교과 — 자율주행 원리 체험</span>
+      </div>
+    </div>
+    <div class="header-controls">
+      <a href="masterclass.html"
+         id="btn-masterclass"
+         class="btn btn-masterclass"
+         title="자율주행 마스터클래스 — 하드웨어 설계 & 디버깅 미션">
+        🎓 마스터클래스
+      </a>
+      <button id="btn-start" class="btn btn-primary" title="시뮬레이션 시작">▶ 시작</button>
+      <button id="btn-pause" class="btn btn-secondary" title="일시정지" disabled>⏸ 일시정지</button>
+      <button id="btn-reset" class="btn btn-danger" title="초기화">↺ 초기화</button>
+      <div class="mode-toggle">
+        <button id="btn-mode-manual" class="mode-btn active" title="수동 조작 모드">🎮 수동</button>
+        <button id="btn-mode-auto" class="mode-btn" title="자율주행 모드">🤖 자율</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 메인 뷰 영역 -->
+  <main class="sim-container">
+    <!-- 실제 뷰 패널 -->
+    <section class="view-panel" id="panel-real">
+      <div class="panel-header">
+        <span class="panel-badge real-badge">📷 실제 뷰</span>
+        <span class="panel-desc">로봇이 교실을 이동하는 탑다운 시점</span>
+        <div class="panel-actions">
+          <button id="btn-edit-toggle" class="btn-icon" title="장애물 편집 모드">✏️ 편집</button>
+          <select id="obstacle-type" class="select-sm" title="추가할 장애물 종류">
+            <option value="desk">🪑 책상</option>
+            <option value="chair">🪑 의자</option>
+            <option value="box">📦 박스</option>
+            <option value="plant">🪴 화분</option>
+          </select>
+        </div>
+      </div>
+      <div class="canvas-wrapper" id="real-canvas-wrapper">
+        <canvas id="canvas-real" width="800" height="600"></canvas>
+        <div id="edit-overlay" class="edit-overlay hidden">
+          <span>✏️ 편집 모드 — 빈 공간에 드래그하여 장애물 추가, 장애물 우클릭으로 삭제</span>
+        </div>
+      </div>
+    </section>
+ 
+    <!-- SLAM 맵 패널 -->
+    <section class="view-panel" id="panel-slam">
+      <div class="panel-header">
+        <span class="panel-badge slam-badge">🗺️ SLAM 맵 뷰</span>
+        <span class="panel-desc">라이다가 실시간으로 완성하는 지도</span>
+        <div class="map-legend">
+          <span class="legend-item unknown">■ 미탐색</span>
+          <span class="legend-item free">■ 이동 가능</span>
+          <span class="legend-item occupied">■ 장애물</span>
+        </div>
+      </div>
+      <div class="canvas-wrapper">
+        <canvas id="canvas-slam" width="800" height="600"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <!-- 하단 상태 + 컨트롤 패널 -->
+  <footer class="control-panel">
+    <!-- 상태 표시 -->
+    <div class="status-bar">
+      <div class="stat-item" id="stat-hp-wrapper">
+        <span class="stat-label">❤️ 체력</span>
+        <span class="stat-value" id="val-hp" style="color: #ff5252; font-size: 1.1rem; letter-spacing: 2px;">❤️❤️❤️</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">탐색률</span>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-explore"></div>
+        </div>
+        <span class="stat-value" id="val-explore">0%</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">감지 장애물</span>
+        <span class="stat-value mono" id="val-obstacles">0개</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">로봇 속도</span>
+        <span class="stat-value mono" id="val-speed">0.0 px/s</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">라이다 히트</span>
+        <span class="stat-value mono" id="val-hits">0 / 0</span>
+      </div>
+    </div>
+
+    <!-- 컨트롤 슬라이더 -->
+    <div class="controls-row">
+      <div class="control-group">
+        <label for="ctrl-speed">🚀 로봇 속도</label>
+        <input type="range" id="ctrl-speed" min="0.5" max="5" step="0.5" value="2" />
+        <span class="ctrl-val" id="disp-speed">2</span>
+      </div>
+      <div class="control-group">
+        <label for="ctrl-lidar-range">📡 라이다 범위</label>
+        <input type="range" id="ctrl-lidar-range" min="50" max="300" step="10" value="150" />
+        <span class="ctrl-val" id="disp-lidar-range">150px</span>
+      </div>
+      <div class="control-group">
+        <label for="ctrl-lidar-angle">🔭 스캔 각도</label>
+        <input type="range" id="ctrl-lidar-angle" min="90" max="360" step="10" value="270" />
+        <span class="ctrl-val" id="disp-lidar-angle">270°</span>
+      </div>
+      <div class="control-group">
+        <label for="ctrl-sim-speed">⏩ 시뮬레이션 속도</label>
+        <input type="range" id="ctrl-sim-speed" min="0.5" max="3" step="0.5" value="1" />
+        <span class="ctrl-val" id="disp-sim-speed">1x</span>
+      </div>
+      <div class="control-group">
+        <label>👁️ 라이다 표시</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="ctrl-show-lidar" checked />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="control-group">
+        <label>🔀 X-Ray 모드</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="ctrl-xray" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- 이벤트 로그 -->
+    <div class="event-log" id="event-log">
+      <div class="log-header">📋 이벤트 로그</div>
+      <div class="log-entries" id="log-entries"></div>
+    </div>
+  </footer>
+
+  <!-- 키보드 안내 오버레이 -->
+  <div class="key-guide" id="key-guide">
+    <div class="key-guide-inner">
+      <div class="key-row">
+        <kbd>W</kbd><kbd>▲</kbd> 앞으로
+      </div>
+      <div class="key-row">
+        <kbd>A</kbd><kbd>◄</kbd> 좌회전&nbsp;&nbsp;<kbd>D</kbd><kbd>►</kbd> 우회전
+      </div>
+      <div class="key-row">
+        <kbd>S</kbd><kbd>▼</kbd> 뒤로
+      </div>
+      <div class="key-row">
+        <kbd>Space</kbd> 브레이크
+      </div>
+    </div>
+  </div>
+
+  <!-- 개념 설명 팝업 -->
+  <div id="concept-popup" class="concept-popup hidden">
+    <div class="popup-inner">
+      <button class="popup-close" id="popup-close">✕</button>
+      <div class="popup-icon" id="popup-icon">💡</div>
+      <h2 class="popup-title" id="popup-title">제목</h2>
+      <p class="popup-body" id="popup-body">내용</p>
+      <button class="btn btn-primary" id="popup-ok">확인!</button>
+    </div>
+  </div>
+  <div id="popup-backdrop" class="popup-backdrop hidden"></div>
+
+  <!-- 툴팁 -->
+  <div id="tooltip" class="tooltip hidden"></div>
+
+  <!-- 스크립트 -->
+  <script src="js/world.js"></script>
+  <script src="js/robot.js"></script>
+  <script src="js/lidar.js"></script>
+  <script src="js/slam.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/mission.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

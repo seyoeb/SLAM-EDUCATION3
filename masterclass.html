@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>자율주행 마스터클래스 | 하드웨어 설계 & 디버깅 미션</title>
+  <meta name="description" content="단계별 하드웨어 조립과 치명적 오류 해결 미션으로 자율주행 기술의 원리를 체험하는 교육 프로그램" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/masterclass.css" />
+</head>
+<body>
+
+<!-- ★ 스캔라인 오버레이 (사이버펑크 효과) -->
+<div class="mc-scanlines"></div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 1: 인트로 화면
+     ══════════════════════════════════════════════════════════ -->
+<div id="screen-intro" class="mc-screen active">
+
+  <!-- 기존 시뮬레이터로 돌아가기 -->
+  <a href="index.html" class="back-to-sim" title="LiDAR SLAM 시뮬레이터로 돌아가기">
+    ← LiDAR SLAM 시뮬레이터
+  </a>
+
+  <!-- 배경 그리드 -->
+  <div class="intro-bg-grid"></div>
+
+  <!-- 메인 콘텐츠 -->
+  <div class="intro-content">
+    <div class="intro-badge">AUTONOMOUS DRIVING MASTERCLASS · v2.0</div>
+
+    <h1 class="intro-title mc-glitch">
+      자율주행<br>마스터클래스
+    </h1>
+    <div class="intro-subtitle">자율주행 자동차의 원리를 직접 만들며 배운다</div>
+    <p class="intro-desc">
+      로봇의 각 부품이 인체의 어떤 기관 역할을 하는지 이해하고,<br>
+      실제 자율주행 로봇 개발 과정에서 발생하는 치명적 오류를<br>
+      직접 분석하고 해결하는 실전 교육 프로그램입니다.
+    </p>
+
+    <!-- 프로그램 구조 카드 -->
+    <div class="intro-structure">
+      <div class="intro-part-card">
+        <div class="part-label">📦 Part 1 — 3단계</div>
+        <div class="part-title">하드웨어 설계 및 제작</div>
+        <ul class="part-items">
+          <li>Step 1. 브레인과 심장 연결</li>
+          <li>Step 2. 뼈대와 근육 조립</li>
+          <li>Step 3. 눈과 귀 장착</li>
+        </ul>
+      </div>
+      <div class="intro-part-card">
+        <div class="part-label">🔧 Part 2 — 4미션</div>
+        <div class="part-title">치명적 오류 해결 — 디버깅 미션</div>
+        <ul class="part-items">
+          <li>Mission 1. 전원 셧다운 사태</li>
+          <li>Mission 2. 비뚤어진 시선과 미끄러지는 발</li>
+          <li>Mission 3. 혼돈의 좌표계</li>
+          <li>Mission 4. 유리벽의 유령</li>
+        </ul>
+      </div>
+    </div>
+
+    <button id="btn-mc-start" class="btn-mc-start">
+      🚀 마스터클래스 시작
+    </button>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 2: 스테이지 화면 (Step / Mission)
+     ══════════════════════════════════════════════════════════ -->
+<div id="screen-stage" class="mc-screen">
+
+  <!-- 진행 헤더 -->
+  <div class="mc-progress-header">
+    <div class="mc-logo-small">🚗 MASTERCLASS</div>
+    <div class="mc-breadcrumb" id="mc-breadcrumb">
+      <!-- JS에서 동적 생성 -->
+    </div>
+    <div class="mc-stage-label" id="mc-stage-label">Step 1 / 3</div>
+  </div>
+
+  <!-- 본문: 왼쪽(내용) + 오른쪽(캔버스) -->
+  <div class="stage-body">
+
+    <!-- 왼쪽: 텍스트 콘텐츠 (JS에서 주입) -->
+    <div class="stage-left" id="stage-left">
+      <!-- 동적 생성 -->
+    </div>
+
+    <!-- 오른쪽: 인터랙티브 캔버스 -->
+    <div class="stage-right" id="stage-right">
+      <canvas id="canvas-stage" class="stage-canvas"></canvas>
+    </div>
+
+  </div>
+
+  <!-- 하단 액션 바 -->
+  <div class="stage-action-bar">
+    <div class="stage-action-hint" id="stage-action-hint">
+      각 부품 카드에서 생체 기관과의 연결고리를 확인하세요
+    </div>
+    <div style="display:flex;gap:1rem;align-items:center;">
+      <button id="btn-okay" class="btn-okay">✅ Okay!</button>
+      <button id="btn-mission-clear" class="btn-mission-clear" style="display:none;">🎯 미션 클리어!</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 3: 자율주행 대시보드
+     ══════════════════════════════════════════════════════════ -->
+<div id="screen-dashboard" class="mc-screen">
+
+  <!-- 대시보드 헤더 -->
+  <div class="dashboard-header">
+    <div class="dashboard-badge" id="dash-badge-icon">✅</div>
+    <div>
+      <div class="dashboard-title" id="dash-title">단계 완료!</div>
+      <div class="dashboard-subtitle" id="dash-subtitle">자율주행 시스템 상태를 확인하세요</div>
+    </div>
+    <div class="achievement-badges" id="achievement-badges">
+      <!-- JS에서 동적 생성 -->
+    </div>
+  </div>
+
+  <!-- 대시보드 본문 -->
+  <div class="dashboard-body">
+
+    <!-- 왼쪽: 실시간 SLAM 지도 -->
+    <div class="slam-panel">
+      <div class="panel-label">실시간 SLAM 지도 뷰어 (2D Occupancy Grid)</div>
+      <canvas id="canvas-slam-dash"></canvas>
+    </div>
+
+    <!-- 오른쪽: 상태 패널들 -->
+    <div class="dashboard-right">
+
+      <!-- 센서 연결 상태 -->
+      <div class="sensor-panel">
+        <div class="panel-title">🔌 센서 연결 상태 (Vehicle Status)</div>
+        <div class="sensor-grid">
+          <div class="sensor-item" id="sensor-cpu">
+            <div class="sensor-led"></div>
+            <span class="sensor-name">CPU</span>
+            <span class="sensor-status-text">OFF</span>
+          </div>
+          <div class="sensor-item" id="sensor-mcu">
+            <div class="sensor-led"></div>
+            <span class="sensor-name">MCU</span>
+            <span class="sensor-status-text">OFF</span>
+          </div>
+          <div class="sensor-item" id="sensor-power">
+            <div class="sensor-led"></div>
+            <span class="sensor-name">POWER</span>
+            <span class="sensor-status-text">OFF</span>
+          </div>
+          <div class="sensor-item" id="sensor-encoder">
+            <div class="sensor-led"></div>
+            <span class="sensor-name">ENCODER</span>
+            <span class="sensor-status-text">OFF</span>
+          </div>
+          <div class="sensor-item" id="sensor-lidar">
+            <div class="sensor-led"></div>
+            <span class="sensor-name">LiDAR</span>
+            <span class="sensor-status-text">OFF</span>
+          </div>
+          <div class="sensor-item" id="sensor-imu">
+            <div class="sensor-led"></div>
+            <span class="sensor-name">IMU</span>
+            <span class="sensor-status-text">OFF</span>
+          </div>
+          <div class="sensor-item" id="sensor-camera">
+            <div class="sensor-led"></div>
+            <span class="sensor-name">CAMERA</span>
+            <span class="sensor-status-text">OFF</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 텔레메트리 데이터 -->
+      <div class="telemetry-panel">
+        <div class="panel-title">📊 텔레메트리 데이터 (Telemetry)</div>
+        <div class="telemetry-grid">
+          <div class="telem-item">
+            <span class="telem-label">🚀 추정 속도</span>
+            <span class="telem-value" id="telem-speed">0.00 m/s</span>
+          </div>
+          <div class="telem-item">
+            <span class="telem-label">🔋 배터리 전압</span>
+            <span class="telem-value good" id="telem-battery">12.4 V</span>
+          </div>
+          <div class="telem-item">
+            <span class="telem-label">🎯 엔코더 카운트</span>
+            <span class="telem-value" id="telem-encoder">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROS TF 트리 -->
+      <div class="tf-panel">
+        <div class="panel-title">🌐 ROS TF 트리 — 좌표계 정렬 상태</div>
+        <canvas id="canvas-tf"></canvas>
+      </div>
+
+      <!-- 시스템 상태 메시지 -->
+      <div class="status-message-bar" id="dash-status-msg">
+        시스템 정상 작동 중
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 대시보드 하단 액션 바 -->
+  <div class="dashboard-action-bar">
+    <div class="dashboard-action-info">
+      현재까지의 학습 성과가 실시간 대시보드에 반영되었습니다 ✓
+    </div>
+    <div style="display:flex;gap:1rem;">
+      <button id="btn-next-stage" class="btn-next-stage">다음 단계 →</button>
+      <button id="btn-finish" class="btn-finish" style="display:none;">🏆 완주 인증 & 시뮬레이터로 →</button>
+    </div>
+  </div>
+
+  <!-- 최종 완료 시 축하 파티클 -->
+  <div class="celebration-overlay" id="celebration-overlay"></div>
+
+</div>
+
+<!-- 스크립트 (순서 중요: dashboard.js 먼저) -->
+<script src="js/dashboard.js"></script>
+<script src="js/masterclass.js"></script>
+
+</body>
+</html>
