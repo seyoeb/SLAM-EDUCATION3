@@ -718,6 +718,9 @@ function setupDragDrop(stage) {
       const partId = draggingPartId 
         || e.dataTransfer.getData('text/plain')
         || e.dataTransfer.getData('text');
+       console.log('draggingPartId:', draggingPartId);           // ← 추가
+       console.log('dataTransfer:', e.dataTransfer.getData('text/plain')); // ← 추가
+       console.log('drop fired, partId:', partId);
         
       console.log('drop fired, partId:', partId);
       draggingPartId = null;
