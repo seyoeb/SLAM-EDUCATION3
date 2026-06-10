@@ -1,129 +1,107 @@
 /* ================================================================
-   masterclass.css — 자율주행 마스터클래스 (밝은 버전 · 중학생용)
-   ================================================================
-   구조 순서:
-   0. 외부 폰트 로드
-   1. CSS 변수 (색상·그림자·크기 토큰)
-   2. 전역 리셋 & 기본 스타일
-   3. 앱 루트 레이아웃 (.mc-app, .mc-screen)
-   4. 화면 전환 애니메이션
-   5. SCREEN 1 — 인트로
-   6. SCREEN 2 — 스테이지 공통 헤더·레이아웃
-   7. SCREEN 2 — 조립(Step) 영역
-      7a. stage-left (설명 패널)
-      7b. stage-right (로봇 그림 + 드롭존)
-      7c. 드래그 가능한 부품 카드
-      7d. 드롭존 상태 (drag-over, filled)
-      7e. 조립 완료 배너
-   8. SCREEN 2 — 미션(Mission) 영역
-   9. SCREEN 2 — 하단 액션 바
-  10. SCREEN 3 — 대시보드
-  11. 공통 컴포넌트 (버튼, 배지, 카드)
-  12. 컨페티 축하 오버레이
-  13. 반응형 미디어쿼리
+   masterclass.css — 자율주행 마스터클래스
+   HTML 구조 기준으로 작성 (masterclass.html v2.0)
    ================================================================ */
 
-
 /* ════════════════════════════════════════════════════════════
-   0. 외부 폰트
+   0. 외부 폰트 (HTML에서 이미 로드하므로 @import 불필요)
    ════════════════════════════════════════════════════════════ */
 
-/* Orbitron: SF 느낌의 디스플레이 폰트 — 제목/로고에 사용
-   Noto Sans KR: 한글 본문용 */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@400;700&display=swap');
-
 
 /* ════════════════════════════════════════════════════════════
-   1. CSS 변수 (디자인 토큰)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   :root에 선언하면 파일 어디서나 var(--변수명)으로 사용 가능.
-   색상 하나를 바꾸면 UI 전체에 자동 반영되는 장점이 있다.
+   1. CSS 변수
    ════════════════════════════════════════════════════════════ */
 :root {
-  /* ── 배경 ── */
-  --mc-bg:         #182240;          /* 메인 배경 (진한 네이비) */
-  --mc-bg-light:   #1f2d54;          /* 카드·패널 배경 (약간 밝은 네이비) */
-
-  /* ── 카드 ── */
-  --mc-card:       rgba(255,255,255,.10);  /* 카드 기본 배경 (반투명 흰색) */
-  --mc-card-hover: rgba(255,255,255,.16);  /* 호버 시 카드 배경 */
-
-  /* ── 강조 색상 ── */
-  --mc-cyan:       #4fc3f7;                       /* 메인 포인트 색 (하늘색) */
-  --mc-cyan-dim:   rgba(79,195,247,.18);          /* 사이언 흐린 버전 (배경용) */
-  --mc-purple:     #ce93d8;                       /* 보조 포인트 (보라) */
-  --mc-green:      #69f0ae;                       /* 성공·완료 색 (초록) */
-  --mc-green-dim:  rgba(105,240,174,.18);
-  --mc-amber:      #ffcc02;                       /* 경고·강조 (노랑) */
-  --mc-amber-dim:  rgba(255,204,2,.18);
-  --mc-red:        #ff8a80;                       /* 오류·위험 (빨강) */
-  --mc-red-dim:    rgba(255,138,128,.18);
-
-  /* ── 텍스트 ── */
-  --mc-text:       #f0f6ff;   /* 기본 본문 색 (밝은 흰색) */
-  --mc-text-dim:   #8aaac8;   /* 보조 텍스트 (흐린 파랑) */
-
-  /* ── 테두리 ── */
-  --mc-border:     rgba(79,195,247,.25);  /* 기본 테두리 */
-
-  /* ── 그림자(Glow) 효과 — box-shadow에 사용 ── */
-  --glow-cyan:   0 0 22px rgba(79,195,247,.45),  0 0 60px rgba(79,195,247,.12);
-  --glow-green:  0 0 22px rgba(105,240,174,.45), 0 0 60px rgba(105,240,174,.12);
-  --glow-amber:  0 0 22px rgba(255,204,2,.45),   0 0 60px rgba(255,204,2,.12);
-  --glow-purple: 0 0 22px rgba(206,147,216,.45), 0 0 60px rgba(206,147,216,.12);
-
-  /* ── 전환 속도 ── */
-  --transition: .25s ease;
+  --mc-bg:          #0f1829;
+  --mc-bg-light:    #182240;
+  --mc-bg-panel:    #1a2848;
+  --mc-card:        rgba(255,255,255,.07);
+  --mc-card-hover:  rgba(255,255,255,.12);
+  --mc-cyan:        #4fc3f7;
+  --mc-cyan-dim:    rgba(79,195,247,.15);
+  --mc-purple:      #ce93d8;
+  --mc-green:       #69f0ae;
+  --mc-green-dim:   rgba(105,240,174,.15);
+  --mc-amber:       #ffcc02;
+  --mc-amber-dim:   rgba(255,204,2,.15);
+  --mc-red:         #ff8a80;
+  --mc-red-dim:     rgba(255,138,128,.15);
+  --mc-text:        #e8f4ff;
+  --mc-text-dim:    #7a9abf;
+  --mc-border:      rgba(79,195,247,.2);
+  --glow-cyan:      0 0 20px rgba(79,195,247,.4),  0 0 50px rgba(79,195,247,.1);
+  --glow-green:     0 0 20px rgba(105,240,174,.4), 0 0 50px rgba(105,240,174,.1);
+  --glow-amber:     0 0 20px rgba(255,204,2,.4),   0 0 50px rgba(255,204,2,.1);
+  --tr: .22s ease;
 }
 
 
 /* ════════════════════════════════════════════════════════════
-   2. 전역 리셋 & 기본 스타일
+   2. 리셋 & 기본
    ════════════════════════════════════════════════════════════ */
-
-/* box-sizing: border-box — padding·border가 width 안에 포함되도록
-   모든 요소에 적용해야 레이아웃 계산이 직관적으로 맞아떨어진다 */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
   width: 100%; height: 100%;
-  overflow: hidden;           /* 앱 전체 스크롤 방지 (각 패널이 자체 스크롤) */
+  overflow: hidden;
   background: var(--mc-bg);
   color: var(--mc-text);
   font-family: 'Noto Sans KR', sans-serif;
-  font-size: 15px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;  /* macOS 폰트 안티앨리어싱 개선 */
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 스크롤바 */
+::-webkit-scrollbar             { width: 4px; height: 4px; }
+::-webkit-scrollbar-track       { background: transparent; }
+::-webkit-scrollbar-thumb       { background: rgba(79,195,247,.3); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(79,195,247,.5); }
+
+
+/* ════════════════════════════════════════════════════════════
+   3. 스캔라인 오버레이 (.mc-scanlines)
+   — body 위에 깔리는 사이버펑크 CRT 효과
+   ════════════════════════════════════════════════════════════ */
+.mc-scanlines {
+  position: fixed;
+  inset: 0;
+  /* 가로 줄무늬 반복 패턴 */
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,.07) 2px,
+    rgba(0,0,0,.07) 4px
+  );
+  pointer-events: none; /* 클릭 이벤트 통과 */
+  z-index: 9999;        /* 최상단 레이어 */
+  animation: scanline-flicker 8s linear infinite;
+}
+
+@keyframes scanline-flicker {
+  /* 미세하게 투명도가 변해 CRT 깜빡임 느낌 */
+  0%,100% { opacity: .45; }
+  50%      { opacity: .35; }
 }
 
 
 /* ════════════════════════════════════════════════════════════
-   3. 앱 루트 레이아웃
+   4. 화면 공통 (.mc-screen)
+   — 모든 화면은 절대 위치로 쌓임. JS가 active 클래스를 붙여 전환.
    ════════════════════════════════════════════════════════════ */
-
-/* 앱 전체 컨테이너 — 화면 꽉 채우고 자식들을 쌓아둠 */
-.mc-app {
-  position: relative;
-  width: 100%; height: 100%;
-  overflow: hidden;
-}
-
-/* 각 화면(인트로·스테이지·대시보드) 공통 스타일
-   position:absolute + inset:0 → 부모 전체를 덮는 레이어
-   → 화면 전환 시 opacity/transform으로 자연스럽게 교체된다 */
 .mc-screen {
   position: absolute;
-  inset: 0;                   /* top:0; right:0; bottom:0; left:0 줄임표현 */
+  inset: 0;
   display: flex;
   flex-direction: column;
-  background: var(--mc-bg);
-  opacity: 0;                 /* 기본은 숨김 */
-  pointer-events: none;       /* 숨겨진 화면은 클릭 차단 */
-  transition: opacity .4s ease, transform .4s ease;
-  transform: translateY(12px); /* 등장 시 살짝 위로 올라오는 효과 준비 */
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: opacity .35s ease, transform .35s ease;
 }
 
-/* 활성화된 화면 — JS가 'active' 클래스를 추가 */
+/* JS가 추가하는 활성 클래스 */
 .mc-screen.active {
   opacity: 1;
   pointer-events: auto;
@@ -132,87 +110,147 @@ html, body {
 
 
 /* ════════════════════════════════════════════════════════════
-   5. SCREEN 1 — 인트로 화면
+   5. SCREEN 1 — 인트로
    ════════════════════════════════════════════════════════════ */
 
-/* 인트로 전체 레이아웃 — 세로 중앙 정렬 */
 #screen-intro {
   align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  gap: 1.5rem;
+  justify-content: flex-start;
   overflow-y: auto;
+  padding: 2.5rem 2rem;
+  gap: 1.2rem;
 }
 
-/* 인트로 중앙 컨텐츠 박스 */
-.intro-box {
-  max-width: 680px;
+/* 배경 그리드 (사이버펑크 원근 격자) */
+.intro-bg-grid {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(79,195,247,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79,195,247,.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 뒤로 가기 링크 */
+.back-to-sim {
+  position: fixed;
+  top: 1.1rem; left: 50%;
+  transform: translateX(-50%);
+  font-size: .78rem;
+  color: var(--mc-cyan);
+  text-decoration: none;
+  opacity: .65;
+  transition: opacity var(--tr);
+  z-index: 10;
+  white-space: nowrap;
+}
+.back-to-sim:hover { opacity: 1; }
+
+/* 인트로 중앙 콘텐츠 래퍼 */
+.intro-content {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1.4rem;
   text-align: center;
+  margin: 3rem auto 0;
 }
 
-/* 인트로 로고 / 타이틀 */
-.intro-logo {
+/* 상단 배지 (AUTONOMOUS DRIVING MASTERCLASS · v2.0) */
+.intro-badge {
   font-family: 'Orbitron', sans-serif;
-  font-size: clamp(1.6rem, 4vw, 2.6rem); /* 화면 너비에 따라 유동적 크기 */
-  font-weight: 900;
+  font-size: .7rem;
+  letter-spacing: .12em;
   color: var(--mc-cyan);
-  letter-spacing: .08em;
+  opacity: .75;
+  border: 1px solid var(--mc-border);
+  border-radius: 20px;
+  padding: .3rem 1rem;
+}
+
+/* 메인 타이틀 */
+.intro-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  font-weight: 900;
+  line-height: 1.15;
+  color: var(--mc-text);
   text-shadow: var(--glow-cyan);
 }
 
+/* 글리치 효과 (.mc-glitch) */
+.mc-glitch {
+  position: relative;
+  animation: glitch-anim 6s infinite;
+}
+
+@keyframes glitch-anim {
+  /* 대부분 정상, 가끔 흔들림 */
+  0%,94%,100% { text-shadow: var(--glow-cyan); transform: none; }
+  95%  { text-shadow: -2px 0 var(--mc-red), 2px 0 var(--mc-cyan); transform: translateX(-2px); }
+  96%  { text-shadow: 2px 0 var(--mc-purple), -2px 0 var(--mc-cyan); transform: translateX(2px); }
+  97%  { text-shadow: var(--glow-cyan); transform: none; }
+}
+
+/* 부제목 */
 .intro-subtitle {
-  font-size: 1rem;
-  color: var(--mc-text-dim);
-  margin-top: -.6rem;
+  font-size: 1.1rem;
+  color: var(--mc-cyan);
+  font-weight: 500;
 }
 
-/* 인트로 설명 텍스트 */
+/* 설명 본문 */
 .intro-desc {
-  font-size: .95rem;
+  font-size: .9rem;
   color: var(--mc-text-dim);
-  line-height: 1.7;
-  max-width: 520px;
+  line-height: 1.8;
 }
 
-/* Part 카드 두 개를 가로로 배치하는 래퍼 */
+/* Part 카드 행 */
 .intro-structure {
   display: flex;
   gap: 1rem;
   width: 100%;
-  flex-wrap: wrap;            /* 좁은 화면에서 세로로 쌓임 */
+  flex-wrap: wrap;
   justify-content: center;
 }
 
-/* Part 카드 (Part1 하드웨어, Part2 디버깅) */
+/* Part 카드 */
 .intro-part-card {
   flex: 1;
-  min-width: 220px;
+  min-width: 240px;
   background: var(--mc-card);
   border: 1px solid var(--mc-border);
   border-radius: 14px;
   padding: 1.2rem 1.4rem;
   text-align: left;
+  transition: border-color var(--tr), background var(--tr);
+}
+.intro-part-card:hover {
+  border-color: var(--mc-cyan);
+  background: var(--mc-card-hover);
 }
 
 .intro-part-card .part-label {
-  font-size: .72rem;
+  font-size: .7rem;
   font-weight: 700;
   color: var(--mc-cyan);
   letter-spacing: .06em;
   text-transform: uppercase;
-  margin-bottom: .4rem;
+  margin-bottom: .5rem;
 }
 
 .intro-part-card .part-title {
   font-size: .95rem;
   font-weight: 700;
   color: var(--mc-text);
-  margin-bottom: .7rem;
+  margin-bottom: .8rem;
 }
 
 .intro-part-card .part-items {
@@ -225,23 +263,23 @@ html, body {
 .intro-part-card .part-items li {
   font-size: .82rem;
   color: var(--mc-text-dim);
-  padding-left: .8rem;
+  padding-left: 1rem;
   position: relative;
 }
 
-/* 리스트 아이템 앞 점 장식 */
 .intro-part-card .part-items li::before {
   content: '›';
   position: absolute;
   left: 0;
   color: var(--mc-cyan);
+  font-weight: 700;
 }
 
-/* 마스터클래스 시작 버튼 */
+/* 시작 버튼 */
 .btn-mc-start {
-  padding: .9rem 2.8rem;
+  padding: .9rem 3rem;
   font-family: 'Orbitron', sans-serif;
-  font-size: 1rem;
+  font-size: .95rem;
   font-weight: 700;
   color: var(--mc-bg);
   background: var(--mc-cyan);
@@ -249,128 +287,141 @@ html, body {
   border-radius: 50px;
   cursor: pointer;
   box-shadow: var(--glow-cyan);
-  transition: transform var(--transition), box-shadow var(--transition);
+  transition: transform var(--tr), box-shadow var(--tr);
   letter-spacing: .04em;
 }
-
-.btn-mc-start:hover {
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: var(--glow-cyan), 0 8px 24px rgba(0,0,0,.3);
-}
-
-.btn-mc-start:active {
-  transform: translateY(0) scale(.98);
-}
+.btn-mc-start:hover  { transform: translateY(-3px) scale(1.03); }
+.btn-mc-start:active { transform: scale(.97); }
 
 
 /* ════════════════════════════════════════════════════════════
-   6. SCREEN 2 — 스테이지 공통 헤더·레이아웃
+   6. SCREEN 2 — 스테이지: 공통 헤더
    ════════════════════════════════════════════════════════════ */
 
-/* 스테이지 화면 전체는 flex column
-   → 헤더(고정) + 본문(flex 1) + 액션바(고정) 구조 */
-#screen-stage {
-  overflow: hidden;
-}
+/* 화면 전체: 헤더 + 본문 + 액션바 3단 구조 */
+#screen-stage { overflow: hidden; }
 
-/* 상단 진행 헤더 (로고 · 빵부스러기 · 단계 표시) */
+/* 상단 진행 헤더 */
 .mc-progress-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: .6rem 1.4rem;
+  padding: .55rem 1.4rem;
   border-bottom: 1px solid var(--mc-border);
-  background: rgba(24,34,64,.85);
-  backdrop-filter: blur(8px);  /* 배경 흐림 효과 (유리 느낌) */
+  background: rgba(15,24,41,.9);
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
   z-index: 20;
-  flex-shrink: 0;              /* 헤더는 줄어들지 않음 */
+  gap: 1rem;
 }
 
-/* 좌측 미니 로고 */
+/* 좌측 로고 */
 .mc-logo-small {
   font-family: 'Orbitron', sans-serif;
-  font-size: .78rem;
+  font-size: .72rem;
   font-weight: 700;
   color: var(--mc-cyan);
-  letter-spacing: .06em;
+  letter-spacing: .08em;
+  white-space: nowrap;
 }
 
-/* 중앙 빵부스러기 (Step1 > Step2 형태 — JS가 동적 생성) */
+/* 중앙 빵부스러기 — JS가 동적으로 span들을 채워넣음 */
 .mc-breadcrumb {
   display: flex;
-  gap: .4rem;
+  gap: .3rem;
   align-items: center;
-  font-size: .75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: .72rem;
   color: var(--mc-text-dim);
+  flex: 1;
 }
 
+/* JS가 현재 단계에 붙이는 강조 클래스 */
 .mc-breadcrumb .crumb-active {
   color: var(--mc-cyan);
   font-weight: 700;
 }
 
-/* 우측 단계 레이블 (예: Step 1 / 3) */
+.mc-breadcrumb .crumb-done {
+  color: var(--mc-green);
+}
+
+/* 우측 단계 레이블 */
 .mc-stage-label {
-  font-size: .78rem;
-  color: var(--mc-text-dim);
   font-family: 'Orbitron', sans-serif;
+  font-size: .7rem;
+  color: var(--mc-text-dim);
+  white-space: nowrap;
 }
 
-/* ── 스테이지 본문 (좌·우 패널 2열 그리드) ── */
+
+/* ════════════════════════════════════════════════════════════
+   7. SCREEN 2 — 스테이지 본문 레이아웃
+   ════════════════════════════════════════════════════════════ */
+
+/* 2열 그리드: 왼쪽(텍스트) + 오른쪽(캔버스/조립) */
 .stage-body {
-  /* 왼쪽 패널: 최소 420px, 최대 1.25fr
-     오른쪽 패널: 나머지 1fr */
   display: grid;
-  grid-template-columns: minmax(420px, 1.25fr) 1fr;
-  flex: 1;          /* 부모가 flex column일 때 남은 공간 채움 */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;   /* grid/flex 자식 overflow 버그 방지 */
   overflow: hidden;
-  min-height: 0;    /* grid/flex 자식의 overflow 버그 방지 */
 }
 
-/* 좌측 패널 (설명·부품 카드 영역) */
+/* ── 왼쪽 패널: JS가 innerHTML로 내용 주입 ── */
 .stage-left {
+  height: 100%;
+  overflow-y: auto;
+  padding: 1.4rem 1.6rem;
+  border-right: 1px solid var(--mc-border);
   display: flex;
   flex-direction: column;
-  width: 100%;
-  height: 100%;
-  padding: 1.2rem 1rem;
-  gap: .9rem;
-  overflow-y: auto;  /* 내용이 길면 세로 스크롤 */
-  border-right: 1px solid var(--mc-border);
+  gap: 1rem;
 }
 
-/* 우측 패널 (로봇 그림·드롭존·미션 캔버스 영역) */
+/* ── 오른쪽 패널: 캔버스 or 조립 UI ── */
 .stage-right {
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
+  justify-content: flex-start;
   padding: 1rem;
-  overflow: hidden;
-  position: relative;  /* 드롭존 absolute 배치 기준 */
+  overflow-y: auto;
+  gap: .8rem;
+  position: relative;
 }
 
-/* ── 조립 헤더 (단계 제목 + 인체 비유 설명) ── */
+/* 스테이지 캔버스 (미션용) — HTML에 고정 존재 */
+.stage-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 10px;
+  border: 1px solid var(--mc-border);
+  background: #0a1420;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   7a. stage-left — JS가 주입하는 조립 단계 콘텐츠
+   ════════════════════════════════════════════════════════════ */
+
+/* 단계 제목 영역 (JS가 생성) */
 .assembly-header {
   display: flex;
   flex-direction: column;
-  gap: .35rem;
-  padding: .8rem 1rem;
-  background: rgba(255,255,255,.04);
+  gap: .4rem;
+  padding: .9rem 1rem;
+  background: var(--mc-card);
   border: 1px solid var(--mc-border);
   border-radius: 12px;
-  position: relative;
-  z-index: 10;
-  pointer-events: auto;
-  cursor: default;
-  transition: all var(--transition);
 }
 
 .assembly-header-title {
   font-family: 'Orbitron', sans-serif;
-  font-size: .95rem;
+  font-size: .85rem;
   font-weight: 700;
   color: var(--mc-cyan);
 }
@@ -378,340 +429,308 @@ html, body {
 .assembly-header-desc {
   font-size: .82rem;
   color: var(--mc-text-dim);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   7a. stage-left — 조립 설명 패널
-   ════════════════════════════════════════════════════════════ */
-
-/* 부품 카드를 감싸는 그리드 래퍼 */
+/* 부품 카드 그리드 래퍼 */
 .parts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: .7rem;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: .65rem;
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   7b. stage-right — 로봇 그림 + 드롭존
-   ════════════════════════════════════════════════════════════ */
-
-/* 로봇 그림 컨테이너 — 드롭존들을 absolute로 올려놓는 기준 */
-.robot-diagram {
-  position: relative;
-  width: 100%;
-  max-width: 360px;
-  aspect-ratio: 3 / 4;  /* 비율 고정 — 높이는 너비에 따라 자동 계산 */
-}
-
-.robot-diagram img,
-.robot-diagram svg {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* ── 드롭존 (빈 슬롯) — 기본 스타일 ── */
-.drop-zone {
-  position: absolute;          /* 로봇 그림 위에 겹쳐서 배치 */
-  width: 80px;
-  height: 80px;
-  border: 2px dashed rgba(79,195,247,.45);  /* 점선 테두리 */
-  border-radius: 12px;
-  background: rgba(79,195,247,.06);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  cursor: pointer;
-  transition: all var(--transition);
-  position: relative;          /* .dz-hint의 position:absolute 기준 */
-  z-index: 5;
-}
-
-/* 드롭존 안 이모지 아이콘
-   pointer-events:none → 이모지가 드래그/클릭 이벤트를 가로채지 않음
-   (없으면 이모지 위에서 drop 이벤트가 발화 안 될 수 있음) */
-.dz-icon {
-  font-size: 1.8rem;
-  opacity: .55;
-  transition: all var(--transition);
-  pointer-events: none;
-}
-
-/* 드롭존 레이블 텍스트 */
-.dz-label {
-  font-size: .68rem;
-  color: rgba(255,255,255,.45);
-  text-align: center;
-  line-height: 1.3;
-  transition: all var(--transition);
-  pointer-events: none;
-}
-
-/* 드롭존 하단 힌트 ("배터리\n여기에!" 형태)
-   white-space:pre-line → \n을 실제 줄바꿈으로 표시 */
-.dz-hint {
-  font-size: .58rem;
-  color: rgba(255,255,255,.28);
-  text-align: center;
-  white-space: pre-line;
-  line-height: 1.4;
-  position: absolute;
-  bottom: 4px;
-  left: 0; right: 0;
-  pointer-events: none;
-}
-
-/* ── 드롭존 상태: 드래그 중인 부품이 위에 올라왔을 때 ──
-   JS의 dragover·touchmove 이벤트가 'drag-over' 클래스를 추가/제거 */
-.drop-zone.drag-over {
-  border-color: var(--mc-cyan);
-  border-style: solid;
-  background: var(--mc-cyan-dim);
-  box-shadow: var(--glow-cyan);
-  transform: scale(1.06);
-}
-
-.drop-zone.drag-over .dz-icon  { opacity: 1; transform: scale(1.15); }
-.drop-zone.drag-over .dz-label { color: var(--mc-cyan); }
-
-/* ── 드롭존 상태: 부품이 채워진 상태 ──
-   JS가 handleDrop() 성공 시 'filled' 클래스를 추가 */
-.drop-zone.filled {
-  border-color: var(--mc-green);
-  border-style: solid;
-  background: var(--mc-green-dim);
-  box-shadow: var(--glow-green);
-  pointer-events: none;        /* 채워진 슬롯에 중복 드롭 방지 */
-  cursor: default;
-}
-
-.drop-zone.filled .dz-icon  { opacity: 1; }
-.drop-zone.filled .dz-label { color: var(--mc-green); }
-.drop-zone.filled .dz-hint  { display: none; } /* 채워지면 힌트 숨김 */
-
-
-/* ════════════════════════════════════════════════════════════
-   7c. 드래그 가능한 부품 카드
-   ════════════════════════════════════════════════════════════ */
-
+/* ── 드래그 가능한 부품 카드 ── */
 .draggable-part {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: .3rem;
-  padding: .7rem .5rem;
+  padding: .75rem .5rem .6rem;
   background: var(--mc-card);
-  border: 1px solid rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.1);
   border-radius: 12px;
   cursor: grab;
-  user-select: none;            /* 드래그 중 텍스트 선택 방지 */
+  user-select: none;
   -webkit-user-select: none;
-  transition: all var(--transition);
-  position: relative;
-  /* CSS 변수 --part-color는 JS에서 카드마다 style="--part-color:#…" 로 주입 */
+  transition: all var(--tr);
+  /* JS가 style="--part-color:#…" 로 색상 주입 */
 }
 
 .draggable-part:hover {
   background: var(--mc-card-hover);
   border-color: var(--part-color, var(--mc-cyan));
-  box-shadow: 0 0 14px rgba(79,195,247,.2);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,.3);
 }
 
-/* 카드 안 이모지·텍스트에 pointer-events:none 필수!
-   없으면 이모지 위에서 dragstart가 발화되어 partId를 못 가져오는 버그 발생 */
-.part-emoji {
-  font-size: 2rem;
-  pointer-events: none;
-}
-
-.part-name {
-  font-size: .8rem;
+/* 자식 요소에 pointer-events:none 필수
+   → 이모지/텍스트가 드래그 이벤트를 가로채지 못하게 */
+.part-emoji  { font-size: 2rem;  pointer-events: none; }
+.part-name   {
+  font-size: .78rem;
   font-weight: 700;
   color: var(--mc-text);
   text-align: center;
   pointer-events: none;
 }
-
-/* 인체 비유 설명 (예: "= 로봇의 뇌")
-   --part-color는 카드마다 다른 색, 없으면 --mc-cyan 폴백 */
-.part-organ {
-  font-size: .68rem;
+.part-organ  {
+  font-size: .65rem;
   color: var(--part-color, var(--mc-cyan));
   text-align: center;
   pointer-events: none;
 }
 
-/* ── 카드 드래그 중 상태 ── */
+/* 드래그 중 */
 .draggable-part.dragging {
-  opacity: .45;
-  transform: scale(.94);
+  opacity: .4;
+  transform: scale(.93);
   cursor: grabbing;
 }
 
-/* ── 카드 배치 완료 상태 (드롭존에 성공적으로 놓임) ── */
+/* 드롭 완료 (슬롯에 배치됨) */
 .draggable-part.placed {
-  opacity: .25;
-  pointer-events: none;         /* 이미 사용된 카드는 다시 드래그 불가 */
+  opacity: .22;
+  pointer-events: none;
   transform: scale(.9);
-  cursor: default;
 }
 
 
 /* ════════════════════════════════════════════════════════════
-   7e. 조립 완료 배너
+   7b. stage-right — 조립 단계: 드롭존 & 로봇 다이어그램
    ════════════════════════════════════════════════════════════ */
 
-/* 모든 슬롯이 채워졌을 때 등장하는 성공 배너
-   JS가 동적으로 DOM에 추가하며 .show 클래스로 표시 */
+/* JS가 생성하는 조립 UI 래퍼 */
+.assembly-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .8rem;
+}
+
+/* 안내 텍스트 */
+.assembly-instruction {
+  font-size: .82rem;
+  color: var(--mc-text-dim);
+  text-align: center;
+}
+
+/* 드롭존 컨테이너 (슬롯들을 세로로 배치) */
+.drop-zones-container {
+  display: flex;
+  flex-direction: column;
+  gap: .7rem;
+  width: 100%;
+  max-width: 280px;
+}
+
+/* ── 드롭존 (빈 슬롯) ── */
+.drop-zone {
+  position: relative;          /* .dz-hint absolute 기준 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  height: 88px;
+  border: 2px dashed rgba(79,195,247,.35);
+  border-radius: 14px;
+  background: rgba(79,195,247,.04);
+  cursor: pointer;
+  transition: all var(--tr);
+}
+
+/* 드롭존 안 이모지 · 레이블 — 이벤트 통과 */
+.dz-icon  {
+  font-size: 1.9rem;
+  opacity: .5;
+  transition: all var(--tr);
+  pointer-events: none;
+}
+.dz-label {
+  font-size: .68rem;
+  color: rgba(255,255,255,.4);
+  text-align: center;
+  line-height: 1.3;
+  transition: all var(--tr);
+  pointer-events: none;
+}
+
+/* 힌트 텍스트 (하단) — \n을 줄바꿈으로 표시 */
+.dz-hint {
+  position: absolute;
+  bottom: 5px; left: 0; right: 0;
+  font-size: .58rem;
+  color: rgba(255,255,255,.25);
+  text-align: center;
+  white-space: pre-line;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+/* 드래그 중인 부품이 위에 올라왔을 때 */
+.drop-zone.drag-over {
+  border-color: var(--mc-cyan);
+  border-style: solid;
+  background: var(--mc-cyan-dim);
+  box-shadow: var(--glow-cyan);
+  transform: scale(1.04);
+}
+.drop-zone.drag-over .dz-icon  { opacity: 1; transform: scale(1.2); }
+.drop-zone.drag-over .dz-label { color: var(--mc-cyan); }
+
+/* 부품이 배치 완료된 슬롯 */
+.drop-zone.filled {
+  border-color: var(--mc-green);
+  border-style: solid;
+  background: var(--mc-green-dim);
+  box-shadow: var(--glow-green);
+  pointer-events: none;
+  cursor: default;
+}
+.drop-zone.filled .dz-icon  { opacity: 1; }
+.drop-zone.filled .dz-label { color: var(--mc-green); }
+.drop-zone.filled .dz-hint  { display: none; }
+
+/* 오답 시도 시 */
+.drop-zone.wrong {
+  border-color: var(--mc-red);
+  border-style: solid;
+  background: var(--mc-red-dim);
+  animation: shake .3s ease;
+}
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25%      { transform: translateX(-7px); }
+  75%      { transform: translateX(7px); }
+}
+
+/* 조립 완료 배너 (JS가 생성) */
 .assembly-complete-banner {
   display: flex;
   align-items: center;
-  gap: .8rem;
-  padding: .8rem 1.2rem;
+  gap: .7rem;
+  padding: .7rem 1.1rem;
   background: var(--mc-green-dim);
   border: 1px solid var(--mc-green);
   border-radius: 12px;
   box-shadow: var(--glow-green);
-  font-size: .9rem;
+  font-size: .88rem;
   font-weight: 700;
   color: var(--mc-green);
+  width: 100%;
+  max-width: 280px;
   opacity: 0;
-  transform: translateY(8px);
-  transition: opacity .3s ease, transform .3s ease;
-  pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity .3s, transform .3s;
 }
-
 .assembly-complete-banner.show {
   opacity: 1;
   transform: translateY(0);
-  pointer-events: auto;
-}
-
-.assembly-complete-banner .banner-icon {
-  font-size: 1.5rem;
 }
 
 
 /* ════════════════════════════════════════════════════════════
-   8. SCREEN 2 — 미션(Mission) 영역
+   7c. stage-left — JS가 주입하는 미션 콘텐츠
    ════════════════════════════════════════════════════════════ */
 
-/* 미션 설명 카드 (왼쪽 패널) */
+/* 미션 설명 카드 */
 .mission-card {
   background: var(--mc-card);
-  border: 1px solid var(--mc-border);
-  border-radius: 14px;
-  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--mc-amber-dim);
+  border-left: 3px solid var(--mc-amber);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
   display: flex;
   flex-direction: column;
-  gap: .6rem;
+  gap: .55rem;
 }
 
 .mission-card-title {
   font-family: 'Orbitron', sans-serif;
-  font-size: .88rem;
+  font-size: .82rem;
   font-weight: 700;
   color: var(--mc-amber);
 }
 
 .mission-card-desc {
-  font-size: .85rem;
+  font-size: .83rem;
   color: var(--mc-text-dim);
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
-/* 미션 캔버스 (오른쪽 패널) — 시뮬레이션 시각화 */
-.mission-canvas {
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
-  border: 1px solid var(--mc-border);
-  background: #0d1a33;
-  display: block;
-}
-
-/* 디버깅 옵션 버튼 그룹 */
+/* 디버깅 선택지 버튼 그룹 */
 .debug-options {
   display: flex;
-  flex-wrap: wrap;
-  gap: .5rem;
-  margin-top: .4rem;
+  flex-direction: column;
+  gap: .45rem;
+  margin-top: .3rem;
 }
 
 .debug-btn {
-  padding: .4rem .9rem;
-  font-size: .78rem;
-  font-weight: 700;
-  border-radius: 20px;
+  padding: .55rem .9rem;
+  font-size: .82rem;
+  font-weight: 500;
+  border-radius: 10px;
   border: 1px solid var(--mc-border);
   background: var(--mc-card);
   color: var(--mc-text);
   cursor: pointer;
-  transition: all var(--transition);
+  text-align: left;
+  transition: all var(--tr);
 }
-
 .debug-btn:hover {
   background: var(--mc-card-hover);
   border-color: var(--mc-cyan);
   color: var(--mc-cyan);
 }
-
 .debug-btn.selected {
   background: var(--mc-cyan-dim);
   border-color: var(--mc-cyan);
   color: var(--mc-cyan);
-  box-shadow: var(--glow-cyan);
 }
-
+.debug-btn.correct {
+  background: var(--mc-green-dim);
+  border-color: var(--mc-green);
+  color: var(--mc-green);
+}
 .debug-btn.wrong {
   background: var(--mc-red-dim);
   border-color: var(--mc-red);
   color: var(--mc-red);
-  animation: shake .3s ease;  /* 틀렸을 때 흔들림 효과 */
-}
-
-/* 흔들림 애니메이션 */
-@keyframes shake {
-  0%,100% { transform: translateX(0); }
-  25%      { transform: translateX(-6px); }
-  75%      { transform: translateX(6px); }
+  animation: shake .3s ease;
 }
 
 
 /* ════════════════════════════════════════════════════════════
-   9. SCREEN 2 — 하단 액션 바
+   8. SCREEN 2 — 하단 액션 바
    ════════════════════════════════════════════════════════════ */
 
-/* 하단 고정 바 (힌트 텍스트 + Okay!/미션클리어 버튼) */
 .stage-action-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: .7rem 1.4rem;
+  padding: .65rem 1.4rem;
   border-top: 1px solid var(--mc-border);
-  background: rgba(24,34,64,.85);
-  backdrop-filter: blur(8px);
+  background: rgba(15,24,41,.9);
+  backdrop-filter: blur(10px);
   flex-shrink: 0;
   z-index: 20;
   gap: 1rem;
 }
 
 .stage-action-hint {
-  font-size: .82rem;
+  font-size: .8rem;
   color: var(--mc-text-dim);
   flex: 1;
 }
 
 /* ✅ Okay! 버튼 */
 .btn-okay {
-  padding: .55rem 1.6rem;
-  font-size: .88rem;
+  padding: .5rem 1.6rem;
+  font-size: .85rem;
   font-weight: 700;
   color: var(--mc-bg);
   background: var(--mc-green);
@@ -719,32 +738,20 @@ html, body {
   border-radius: 50px;
   cursor: pointer;
   box-shadow: var(--glow-green);
-  transition: all var(--transition);
+  transition: all var(--tr);
   white-space: nowrap;
 }
-
-.btn-okay:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: var(--glow-green), 0 6px 18px rgba(0,0,0,.25);
-}
-
-.btn-okay:active:not(:disabled) {
-  transform: translateY(0) scale(.97);
-}
-
-/* 비활성 상태 — 아직 조립 완료 전 */
+.btn-okay:hover:not(:disabled) { transform: translateY(-2px); }
+.btn-okay:active:not(:disabled) { transform: scale(.97); }
 .btn-okay:disabled {
-  opacity: .35;
+  opacity: .3;
   cursor: not-allowed;
   box-shadow: none;
-  animation: none; /* 펄스 애니메이션 꺼야 함 — 활성 상태에서만 pulse 적용 */
 }
-
-/* 조립 완료 후 주의를 끄는 펄스 */
+/* 조립 완료 후 주의 끄는 펄스 */
 .btn-okay.pulse {
   animation: pulse-glow 1.6s ease-in-out infinite;
 }
-
 @keyframes pulse-glow {
   0%,100% { box-shadow: var(--glow-green); }
   50%      { box-shadow: var(--glow-green), 0 0 40px rgba(105,240,174,.5); }
@@ -752,8 +759,8 @@ html, body {
 
 /* 🎯 미션 클리어! 버튼 */
 .btn-mission-clear {
-  padding: .55rem 1.6rem;
-  font-size: .88rem;
+  padding: .5rem 1.6rem;
+  font-size: .85rem;
   font-weight: 700;
   color: var(--mc-bg);
   background: var(--mc-amber);
@@ -761,68 +768,63 @@ html, body {
   border-radius: 50px;
   cursor: pointer;
   box-shadow: var(--glow-amber);
-  transition: all var(--transition);
+  transition: all var(--tr);
   white-space: nowrap;
 }
-
-.btn-mission-clear:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--glow-amber), 0 6px 18px rgba(0,0,0,.25);
-}
+.btn-mission-clear:hover { transform: translateY(-2px); }
 
 
 /* ════════════════════════════════════════════════════════════
-  10. SCREEN 3 — 대시보드
+   9. SCREEN 3 — 대시보드
    ════════════════════════════════════════════════════════════ */
 
 #screen-dashboard {
   overflow: hidden;
 }
 
-/* 대시보드 상단 헤더 */
+/* ── 대시보드 헤더 ── */
 .dashboard-header {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: .8rem 1.4rem;
+  padding: .7rem 1.4rem;
   border-bottom: 1px solid var(--mc-border);
-  background: rgba(24,34,64,.85);
-  backdrop-filter: blur(8px);
+  background: rgba(15,24,41,.9);
+  backdrop-filter: blur(10px);
   flex-shrink: 0;
   z-index: 20;
 }
 
-/* 완료 배지 아이콘 (✅ / 🎯 등) */
 .dashboard-badge {
-  font-size: 2rem;
+  font-size: 1.9rem;
   line-height: 1;
 }
 
 .dashboard-title {
   font-family: 'Orbitron', sans-serif;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--mc-cyan);
 }
 
 .dashboard-subtitle {
-  font-size: .8rem;
+  font-size: .75rem;
   color: var(--mc-text-dim);
-  margin-top: .15rem;
+  margin-top: .12rem;
 }
 
-/* 업적 배지 목록 (우측 끝) */
+/* 업적 배지 (우측) */
 .achievement-badges {
   margin-left: auto;
   display: flex;
   gap: .4rem;
-  align-items: center;
   flex-wrap: wrap;
+  align-items: center;
 }
 
-.badge-item {
-  padding: .25rem .7rem;
-  font-size: .72rem;
+.badge-chip {
+  padding: .22rem .7rem;
+  font-size: .68rem;
   font-weight: 700;
   border-radius: 20px;
   background: var(--mc-cyan-dim);
@@ -830,111 +832,213 @@ html, body {
   color: var(--mc-cyan);
 }
 
-/* 대시보드 본문 */
+/* ── 대시보드 본문 (SLAM 지도 + 우측 패널들) ── */
 .dashboard-body {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 1rem;
-  padding: 1rem 1.4rem;
+  grid-template-columns: 1fr 320px;
+  gap: 0;
   flex: 1;
-  overflow: hidden;
   min-height: 0;
+  overflow: hidden;
 }
 
-/* 좌측: SLAM 지도 패널 */
+/* 왼쪽: SLAM 지도 패널 */
 .slam-panel {
   display: flex;
   flex-direction: column;
   gap: .5rem;
+  padding: .9rem 1rem .9rem 1.4rem;
   min-height: 0;
+  border-right: 1px solid var(--mc-border);
 }
 
 .panel-label {
-  font-size: .72rem;
-  color: var(--mc-text-dim);
+  font-size: .7rem;
   font-weight: 700;
-  letter-spacing: .04em;
+  color: var(--mc-text-dim);
+  letter-spacing: .05em;
   text-transform: uppercase;
+  flex-shrink: 0;
 }
 
 /* SLAM 캔버스 */
 #canvas-slam-dash {
   flex: 1;
   width: 100%;
-  border-radius: 12px;
-  border: 1px solid var(--mc-border);
-  background: #0d1a33;
-  display: block;
   min-height: 0;
+  border-radius: 10px;
+  border: 1px solid var(--mc-border);
+  background: #06101e;
+  display: block;
 }
 
-/* 우측: 시스템 상태 카드 목록 */
+/* 오른쪽: 상태 패널들 */
 .dashboard-right {
   display: flex;
   flex-direction: column;
-  gap: .6rem;
+  gap: 0;
   overflow-y: auto;
+  padding: .9rem 1rem;
+  background: var(--mc-bg-panel);
 }
 
-/* 시스템 상태 카드 하나 */
-.status-card {
-  background: var(--mc-card);
-  border: 1px solid var(--mc-border);
-  border-radius: 12px;
-  padding: .75rem 1rem;
-  display: flex;
-  align-items: center;
-  gap: .7rem;
-  transition: border-color var(--transition);
-}
-
-.status-card.online  { border-color: var(--mc-green);  }
-.status-card.warning { border-color: var(--mc-amber);  }
-.status-card.offline { border-color: var(--mc-red);    }
-
-.status-icon { font-size: 1.4rem; }
-
-.status-info { flex: 1; }
-
-.status-name {
-  font-size: .82rem;
+/* ── panel-title (센서/텔레메트리/TF 패널 제목 공통) ── */
+.panel-title {
+  font-size: .73rem;
   font-weight: 700;
-  color: var(--mc-text);
+  color: var(--mc-cyan);
+  margin-bottom: .6rem;
+  letter-spacing: .03em;
 }
 
-.status-value {
-  font-size: .72rem;
-  color: var(--mc-text-dim);
-  margin-top: .1rem;
+/* ── 센서 연결 상태 패널 ── */
+.sensor-panel {
+  padding-bottom: .9rem;
+  border-bottom: 1px solid var(--mc-border);
+  margin-bottom: .9rem;
 }
 
-/* 상태 표시등 (초록·노랑·빨강 점) */
-.status-dot {
-  width: 9px; height: 9px;
-  border-radius: 50%;
-  flex-shrink: 0;
+/* 센서 7개를 그리드로 배치 */
+.sensor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .35rem;
 }
 
-.status-card.online  .status-dot { background: var(--mc-green);  box-shadow: 0 0 6px var(--mc-green); }
-.status-card.warning .status-dot { background: var(--mc-amber);  box-shadow: 0 0 6px var(--mc-amber); }
-.status-card.offline .status-dot { background: var(--mc-red);    box-shadow: 0 0 6px var(--mc-red);   }
-
-/* 다음 단계 버튼 (대시보드 하단) */
-.dashboard-footer {
+/* 센서 아이템 1개 행 */
+.sensor-item {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  padding: .7rem 1.4rem;
-  border-top: 1px solid var(--mc-border);
-  background: rgba(24,34,64,.85);
-  backdrop-filter: blur(8px);
+  gap: .5rem;
+  padding: .3rem .5rem;
+  border-radius: 7px;
+  background: var(--mc-card);
+  border: 1px solid transparent;
+  transition: border-color var(--tr);
+}
+
+/* 상태 LED (작은 원) */
+.sensor-led {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--mc-red);    /* 기본: OFF (빨강) */
   flex-shrink: 0;
+  transition: background var(--tr), box-shadow var(--tr);
+}
+
+.sensor-name {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--mc-text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  flex: 1;
+}
+
+/* JS가 ON/OFF 텍스트를 넣는 span */
+.sensor-status-text {
+  font-size: .68rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--mc-red);
+  transition: color var(--tr);
+}
+
+/* JS가 .on 클래스를 붙이면 초록으로 전환 */
+.sensor-item.on .sensor-led         { background: var(--mc-green); box-shadow: 0 0 6px var(--mc-green); }
+.sensor-item.on .sensor-status-text { color: var(--mc-green); }
+.sensor-item.on                     { border-color: rgba(105,240,174,.2); }
+
+/* ── 텔레메트리 패널 ── */
+.telemetry-panel {
+  padding-bottom: .9rem;
+  border-bottom: 1px solid var(--mc-border);
+  margin-bottom: .9rem;
+}
+
+.telemetry-grid {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+/* 텔레메트리 행 1개 */
+.telem-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .3rem .4rem;
+  border-radius: 7px;
+  background: var(--mc-card);
+}
+
+.telem-label {
+  font-size: .75rem;
+  color: var(--mc-text-dim);
+}
+
+.telem-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--mc-cyan);
+}
+
+/* 배터리 전압 상태별 색상 */
+.telem-value.good    { color: var(--mc-green); }
+.telem-value.warning { color: var(--mc-amber); }
+.telem-value.danger  { color: var(--mc-red);   }
+
+/* ── ROS TF 트리 패널 ── */
+.tf-panel {
+  padding-bottom: .9rem;
+  border-bottom: 1px solid var(--mc-border);
+  margin-bottom: .9rem;
+}
+
+/* TF 트리 캔버스 */
+#canvas-tf {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  border: 1px solid var(--mc-border);
+  background: #06101e;
+  display: block;
+}
+
+/* ── 시스템 상태 메시지 바 ── */
+.status-message-bar {
+  font-size: .75rem;
+  color: var(--mc-text-dim);
+  padding: .4rem .5rem;
+  border-radius: 7px;
+  background: var(--mc-card);
+  line-height: 1.5;
+}
+
+/* ── 대시보드 하단 액션 바 ── */
+.dashboard-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .65rem 1.4rem;
+  border-top: 1px solid var(--mc-border);
+  background: rgba(15,24,41,.9);
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+  z-index: 20;
   gap: 1rem;
 }
 
+.dashboard-action-info {
+  font-size: .78rem;
+  color: var(--mc-text-dim);
+  flex: 1;
+}
+
+/* 다음 단계 버튼 */
 .btn-next-stage {
-  padding: .6rem 1.8rem;
-  font-size: .9rem;
+  padding: .5rem 1.6rem;
+  font-size: .85rem;
   font-weight: 700;
   color: var(--mc-bg);
   background: var(--mc-cyan);
@@ -942,81 +1046,64 @@ html, body {
   border-radius: 50px;
   cursor: pointer;
   box-shadow: var(--glow-cyan);
-  transition: all var(--transition);
+  transition: all var(--tr);
+  white-space: nowrap;
 }
+.btn-next-stage:hover { transform: translateY(-2px); }
 
-.btn-next-stage:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--glow-cyan), 0 6px 18px rgba(0,0,0,.25);
-}
-
-
-/* ════════════════════════════════════════════════════════════
-  11. 공통 컴포넌트
-   ════════════════════════════════════════════════════════════ */
-
-/* 범용 버튼 기본형 */
-.btn {
-  padding: .45rem 1.1rem;
-  font-size: .82rem;
+/* 완주 버튼 */
+.btn-finish {
+  padding: .5rem 1.6rem;
+  font-size: .85rem;
   font-weight: 700;
-  border-radius: 8px;
-  border: 1px solid var(--mc-border);
-  background: var(--mc-card);
-  color: var(--mc-text);
+  color: var(--mc-bg);
+  background: var(--mc-amber);
+  border: none;
+  border-radius: 50px;
   cursor: pointer;
-  transition: all var(--transition);
+  box-shadow: var(--glow-amber);
+  transition: all var(--tr);
+  white-space: nowrap;
 }
-
-.btn:hover {
-  background: var(--mc-card-hover);
-  border-color: var(--mc-cyan);
-}
-
-/* 스크롤바 스타일 (WebKit 브라우저) */
-::-webkit-scrollbar               { width: 5px; height: 5px; }
-::-webkit-scrollbar-track         { background: transparent; }
-::-webkit-scrollbar-thumb         { background: rgba(79,195,247,.25); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover   { background: rgba(79,195,247,.45); }
+.btn-finish:hover { transform: translateY(-2px); }
 
 
 /* ════════════════════════════════════════════════════════════
-  12. 컨페티 축하 오버레이
+  10. 컨페티 오버레이
    ════════════════════════════════════════════════════════════ */
 
-/* 전체화면을 덮는 축하 오버레이 — JS가 동적으로 생성 */
-#celebration-overlay {
-  position: fixed;
+/* HTML: <div class="celebration-overlay" id="celebration-overlay"> */
+.celebration-overlay {
+  position: absolute;
   inset: 0;
-  pointer-events: none;  /* 컨페티가 클릭 이벤트 방해하지 않도록 */
-  z-index: 9000;
+  pointer-events: none;
+  z-index: 500;
   overflow: hidden;
 }
 
-/* 컨페티 조각 하나
-   left / background / animation-duration 등은 JS가 인라인으로 주입 */
+/* JS가 동적으로 생성하는 컨페티 조각 */
 .confetti-particle {
   position: absolute;
-  top: -20px;              /* 화면 위에서 시작 */
+  top: -20px;
   border-radius: 3px;
   animation: confetti-fall linear forwards;
 }
 
 @keyframes confetti-fall {
-  0%   { transform: translateY(0)    rotate(0deg);   opacity: 1; }
+  0%   { transform: translateY(0) rotate(0deg);    opacity: 1; }
   80%  { opacity: 1; }
   100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }
 
 
 /* ════════════════════════════════════════════════════════════
-  13. 반응형 미디어쿼리
+  11. 반응형
    ════════════════════════════════════════════════════════════ */
 
-/* ── 태블릿 (≤ 900px) ── */
-@media (max-width: 900px) {
+/* ── 태블릿 (≤ 960px) ── */
+@media (max-width: 960px) {
 
-  /* 2열 → 1열로 전환 (로봇 그림이 아래로) */
+  /* 스테이지: 2열 → 1열 (텍스트 위, 캔버스/조립 아래) */
   .stage-body {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
@@ -1024,55 +1111,68 @@ html, body {
   }
 
   .stage-left {
+    height: auto;
+    overflow-y: visible;
     border-right: none;
     border-bottom: 1px solid var(--mc-border);
-    overflow-y: visible;
-    height: auto;
+    max-height: 45vh;
+    overflow-y: auto;
   }
 
   .stage-right {
+    height: auto;
     min-height: 300px;
   }
 
-  /* 대시보드도 1열로 */
+  /* 대시보드: 2열 → 1열 */
   .dashboard-body {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
+    grid-template-rows: 1fr auto;
+    overflow-y: auto;
   }
 
-  /* 우측 카드 목록을 가로 스크롤로 전환 */
+  .slam-panel {
+    border-right: none;
+    border-bottom: 1px solid var(--mc-border);
+    min-height: 250px;
+  }
+
   .dashboard-right {
-    max-height: 200px;
     flex-direction: row;
     flex-wrap: wrap;
-    overflow-y: visible;
-    overflow-x: auto;
+    max-height: 280px;
+    overflow-y: auto;
+    gap: .7rem;
   }
 
-  .status-card {
-    min-width: 160px;
+  .sensor-panel,
+  .telemetry-panel,
+  .tf-panel {
     flex: 1;
+    min-width: 200px;
+    border-bottom: none;
+    margin-bottom: 0;
   }
 }
 
 /* ── 모바일 (≤ 540px) ── */
 @media (max-width: 540px) {
 
-  .mc-progress-header { padding: .5rem .8rem; }
-  .mc-logo-small       { font-size: .65rem; }
-
-  .stage-left   { padding: .8rem .6rem; }
-  .parts-grid   { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
-
-  .stage-action-bar    { padding: .5rem .8rem; flex-wrap: wrap; }
-  .stage-action-hint   { font-size: .75rem; }
-
-  .intro-logo    { font-size: 1.4rem; }
+  #screen-intro { padding: 1.5rem 1rem; }
+  .intro-content { margin-top: 2rem; gap: 1rem; }
+  .intro-title { font-size: 2rem; }
   .intro-structure { flex-direction: column; }
-  .btn-mc-start  { padding: .8rem 2rem; font-size: .9rem; }
 
-  /* 대시보드 헤더 압축 */
-  .dashboard-title     { font-size: .9rem; }
-  .dashboard-subtitle  { font-size: .72rem; }
-  .achievement-badges  { display: none; }  /* 모바일에서는 배지 숨김 */
+  .mc-progress-header { padding: .45rem .8rem; }
+  .mc-logo-small { font-size: .62rem; }
+  .mc-breadcrumb { display: none; }  /* 모바일에선 빵부스러기 숨김 */
+
+  .stage-left   { padding: .8rem; }
+  .parts-grid   { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+
+  .stage-action-bar { padding: .5rem .8rem; }
+
+  .dashboard-header { padding: .5rem .8rem; }
+  .achievement-badges { display: none; }
+  .dashboard-right { padding: .6rem; }
 }
